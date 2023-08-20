@@ -1,0 +1,4 @@
+aiofiles
+discord.py
+docker
+python-decouple

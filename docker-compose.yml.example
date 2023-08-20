@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  decidarr-bot:
+    build: https://github.com/engels74/decidarr-bot.git
+    container_name: decidarr-bot
+    environment:
+      - DISCORD_TOKEN=your_discord_token
+      - DOCKER_CONTAINER_NAME=your_container_name
+      - VOTE_TITLE=Vote to restart the Docker container!
+      - VOTE_CHANNEL_ID=your_channel_id
+      - VOTES_NEEDED=3
+      - VOTES_DATA_PATH=/app/votes_data/votes.json
+      - TRUSTED_ROLE_ID=your_trusted_role_id
+      - CLEANUP_INTERVAL=30m
+      - DOCKER_SOCKET_PROXY_URL=tcp://docker-socket-proxy:2375
+      - MESSAGE_HISTORY_LIMIT=25
+      - RESET_VOTE_INTERVAL=1h
+      - RESTART_COOLDOWN=1h
+      - UPDATE_POST_INTERVAL=10s
+      - USER_VOTE_COOLDOWN=1m
+    volumes:
+      - ./votes_data:/app/votes_data
+    depends_on:
+      - docker-socket-proxy
+    restart: unless-stopped
+
+  docker-socket-proxy:
+    container_name: docker-socket-proxy
+    image: tecnativa/docker-socket-proxy:latest
+    environment:
+      - CONTAINERS=1
+      - ALLOW_RESTARTS=1
+      - POST=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped

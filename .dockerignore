@@ -1,0 +1,20 @@
+# Ignore Git directory and files
+.git/
+.gitignore
+
+# Ignore configuration files that might contain sensitive information
+*.env
+*.json
+
+# Ignore logs
+*.log
+
+# Ignore Python cache directories
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Ignore other unnecessary files
+*.md
+LICENSE
