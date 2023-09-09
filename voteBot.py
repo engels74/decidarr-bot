@@ -1,3 +1,6 @@
+from asyncio import Lock
+from datetime import datetime
+from discord.ext import commands, tasks
 import aiofiles
 import asyncio
 import discord
@@ -6,9 +9,12 @@ import fcntl
 import json
 import os
 import time
-from asyncio import Lock
-from datetime import datetime
-from discord.ext import commands, tasks
+
+# Initialize logging
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 # Define a function to retrieve environment variables as integers
 def get_env_var_as_int(name, default=None):
@@ -52,7 +58,7 @@ def parse_time(time_str):
     elif unit == 'h':
         return value * 3600
     else:
-        print("[INFO] Reading from the existing votes.json file.")
+        logger.info("[INFO] Reading from the existing votes.json file.")
         raise ValueError("[ERROR] Invalid time format")
 
 # Parse various time-related environment variables
@@ -79,14 +85,14 @@ async def initialize_votes_file():
                 'last_restart_timestamp': None
             }
             await f.write(json.dumps(data, indent=4))
-            print("[INFO] The votes.json file has been initialized.")
+            logger.info("[INFO] The votes.json file has been initialized.")
     else:
         async with AsyncVoteFileLock(VOTES_PATH) as f:
             content = await f.read()
             data = json.loads(content)
             if data.get('last_restart_timestamp'):
                 last_restart_time = datetime.fromisoformat(data['last_restart_timestamp'])
-        print("[INFO] The votes.json file exists and has been read.")
+        logger.info("[INFO] The votes.json file exists and has been read.")
 
 # Set up Discord Intents (used to specify which events the bot should receive)
 intents = discord.Intents.default()
@@ -150,7 +156,7 @@ async def add_vote(user_id):
 
         if data['votes_count'] >= VOTES_NEEDED:
             embed = discord.Embed(title="Vote Feedback", description="Container will be restarted due to vote threshold!", color=0x00ff00)
-            print("[INFO] Votes have been reset due to reaching the threshold.")
+            logger.info("[INFO] Votes have been reset due to reaching the threshold.")
         else:
             embed = discord.Embed(title="Vote Feedback", description=f"Thank you for voting! Current Votes: {data['votes_count']}/{VOTES_NEEDED}", color=0x00ff00)
 
@@ -158,7 +164,7 @@ async def add_vote(user_id):
         await f.write(json.dumps(data, indent=4))
         await f.close()
 
-        print(f"[INFO] User {user_id} has voted. Current votes count: {data['votes_count']}.")
+        logger.info(f"[INFO] User {user_id} has voted. Current votes count: {data['votes_count']}.")
         return embed
 
 # Asynchronous function to reset the vote count
@@ -169,12 +175,12 @@ async def reset_votes():
         data['votes_count'] = 0
         await f.seek(0)
         await f.write(json.dumps(data, indent=4))
-        print("[INFO] Votes have been reset due to the timer.")
+        logger.info("[INFO] Votes have been reset due to the timer.")
 
 # Function to restart the Docker container
 def restart_container():
     container = client.containers.get(CONTAINER_NAME)
-    print("[INFO] Restarting the container.")
+    logger.info("[INFO] Restarting the container.")
     container.restart()
 
 # Define a custom button for users to vote to restart the container
@@ -212,10 +218,10 @@ class VoteView(discord.ui.View):
 def check_docker_connection():
     try:
         containers = client.containers.list()  
-        print("[INFO] Successfully connected to Docker socket proxy.")
+        logger.info("[INFO] Successfully connected to Docker socket proxy.")
         return True
     except Exception as e:
-        print(f"[ERROR] Failed to connect to Docker socket proxy. Error: {e}")
+        logger.info(f"[ERROR] Failed to connect to Docker socket proxy. Error: {e}")
         return False
 
 # Event handler for when the bot is ready and has started up
@@ -224,7 +230,7 @@ async def on_ready():
     await initialize_votes_file()
     global vote_post_msg_id
 
-    print(f'[INFO] Bot is logged in as {bot.user}')
+    logger.info(f'[INFO] Bot is logged in as {bot.user}')
     check_docker_connection()  
 
     channel = bot.get_channel(VOTE_CHANNEL_ID)
@@ -242,7 +248,7 @@ async def on_ready():
 # Task loop to clean up old messages from the channel at regular intervals
 @tasks.loop(seconds=CLEANUP_INTERVAL)
 async def cleanup_messages():
-    print("[INFO] Running cleanup messages task.")
+    logger.info("[INFO] Running cleanup messages task.")
     channel = bot.get_channel(VOTE_CHANNEL_ID)
     if not channel:
         return
@@ -263,7 +269,7 @@ async def vote(ctx):
 # Task loop to update the main voting post message at regular intervals
 @tasks.loop(seconds=parse_time(os.getenv('UPDATE_POST_INTERVAL', '15s')))
 async def update_vote_post():
-    print("[INFO] Updating the Discord post.")
+    logger.info("[INFO] Updating the Discord post.")
     global vote_post_msg_id  
 
     channel = bot.get_channel(VOTE_CHANNEL_ID)
@@ -295,12 +301,12 @@ async def update_vote_post():
             vote_post_msg_id = new_message.id  
         except discord.errors.HTTPException as e:
             if e.code == 429:  
-                print("[INFO] Rate limited by Discord, delaying next post update.")
+                logger.info("[INFO] Rate limited by Discord, delaying next post update.")
                 await asyncio.sleep(e.retry_after)  
             else:
-                print(f"[ERROR] Encountered HTTPException: {e}")
+                logger.info(f"[ERROR] Encountered HTTPException: {e}")
         except Exception as e:  
-            print(f"[ERROR] An unexpected error occurred: {e}")
+            logger.info(f"[ERROR] An unexpected error occurred: {e}")
 
     else:
 
