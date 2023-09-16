@@ -9,9 +9,9 @@
       "instances": 1
     },
     {
-      "name": "voteBot",
+      "name": "decidarr",
       "interpreter": "python",
-      "script": "voteBot.py",
+      "script": "decidarrbot.py",
       "autorestart": true,
       "watch": false,
       "exec_mode": "fork",
