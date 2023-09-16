@@ -11,15 +11,17 @@ The Decidarr Bot is designed to allow members of a Discord server to vote for th
 
 But wait, there's more to it:
 
-1. **Safety First:** The bot is smart. If it just restarted the system, it will wait for a while before allowing another restart. This ensures that things don't go haywire with continuous restarts.
 
-2. **Taking Turns:** If you just voted, the bot will ask you to wait a little before you can vote again. This prevents one person from spamming votes.
+1. 🛑 **Safety First:**  The bot is smart. If it just restarted the system, it will wait for a while before allowing another restart. This ensures that things don't go haywire with continuous restarts.
 
-3. **Keeping Things Tidy:** Like a good helper, the bot cleans up after itself. It won't let the chat room get cluttered with old messages.
+2. 🔄 **Taking Turns:**  If you just voted, the bot will ask you to wait a little before you can vote again. This prevents one person from spamming votes.
 
-4. **Trust is Important:** The bot knows who the trusted members of the chat are. Only these trusted members are allowed to cast a vote.
+3. 🧹 **Keeping Things Tidy:**  Like a good helper, the bot cleans up after itself. It won't let the chat room get cluttered with old messages.
 
-5. **Staying Informed:** The bot keeps everyone updated. It will regularly post messages showing how many votes have been cast and how many are needed for a restart.
+4. 🔒 **Trust is Important:**  The bot knows who the trusted members of the chat are. Only these trusted members are allowed to cast a vote.
+
+5. 📢 **Staying Informed:**  The bot keeps everyone updated. It will regularly post messages showing how many votes have been cast and how many are needed for a restart.
+
 
 In essence, the Decidarr is like a democratic system for tech management, built right into your chat room. It ensures everyone has a say, operates safely, and keeps everyone informed. 
 
@@ -57,7 +59,7 @@ Keep in mind, it's a work in progress :).
 
 5. Run the bot:
    ```
-   python voteBot.py
+   python main.py
    ```
 
 ## Docker Guide

@@ -3,15 +3,15 @@
     {
       "name": "keepalive",
       "interpreter": "python",
-      "script": "pm2_keepalive.py",
+      "script": "docker/pm2_keepalive.py",
       "autorestart": true,
       "exec_mode": "fork",
       "instances": 1
     },
     {
-      "name": "voteBot",
+      "name": "decidarrbot",
       "interpreter": "python",
-      "script": "voteBot.py",
+      "script": "main.py",
       "autorestart": true,
       "watch": false,
       "exec_mode": "fork",

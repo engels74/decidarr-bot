@@ -20,4 +20,4 @@ RUN echo "**** removing unneeded files ****"
 RUN rm -rf /app/requirements.txt
 
 # Run the app
-CMD [ "pm2-runtime", "start", "ecosystem.config.json" ]
+CMD [ "pm2-runtime", "start", "docker/ecosystem.config.json" ]
